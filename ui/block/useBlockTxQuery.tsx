@@ -6,17 +6,12 @@ import type { Chain, GetBlockReturnType } from 'viem';
 import type { BlockTransactionsResponse } from 'types/api/block';
 
 import type { ResourceError } from 'lib/api/resources';
-import { retry } from 'lib/api/useQueryClientConfig';
-import { SECOND } from 'lib/consts';
 import dayjs from 'lib/date/dayjs';
 import hexToDecimal from 'lib/hexToDecimal';
 import { publicClient } from 'lib/web3/client';
 import { GET_BLOCK_WITH_TRANSACTIONS } from 'stubs/RPC';
-import { TX } from 'stubs/tx';
-import { generateListStub } from 'stubs/utils';
 import { unknownAddress } from 'ui/shared/address/utils';
 import type { QueryWithPagesResult } from 'ui/shared/pagination/useQueryWithPages';
-import useQueryWithPages from 'ui/shared/pagination/useQueryWithPages';
 import { emptyPagination } from 'ui/shared/pagination/utils';
 
 import type { BlockQuery } from './useBlockQuery';
@@ -34,32 +29,6 @@ interface Params {
 }
 
 export default function useBlockTxQuery({ heightOrHash, blockQuery, tab }: Params): BlockTxsQuery {
-  const [ isRefetchEnabled, setRefetchEnabled ] = React.useState(false);
-
-  const apiQuery = useQueryWithPages({
-    resourceName: 'block_txs',
-    pathParams: { height_or_hash: heightOrHash },
-    options: {
-      enabled: Boolean(tab === 'txs' && !blockQuery.isPlaceholderData && !blockQuery.isDegradedData),
-      placeholderData: generateListStub<'block_txs'>(TX, 50, { next_page_params: {
-        block_number: 9004925,
-        index: 49,
-        items_count: 50,
-      } }),
-      refetchOnMount: false,
-      retry: (failureCount, error) => {
-        if (isRefetchEnabled) {
-          return false;
-        }
-
-        return retry(failureCount, error);
-      },
-      refetchInterval: (): number | false => {
-        return isRefetchEnabled ? 15 * SECOND : false;
-      },
-    },
-  });
-
   const rpcQuery = useQuery<RpcResponseType, unknown, BlockTransactionsResponse | null>({
     queryKey: [ 'RPC', 'block_txs', { heightOrHash } ],
     queryFn: async() => {
@@ -125,33 +94,10 @@ export default function useBlockTxQuery({ heightOrHash, blockQuery, tab }: Param
       };
     },
     placeholderData: GET_BLOCK_WITH_TRANSACTIONS,
-    enabled: tab === 'txs' && (blockQuery.isDegradedData || apiQuery.isError || apiQuery.errorUpdateCount > 0),
+    enabled: tab === 'txs' && blockQuery.isDegradedData,
     retry: false,
     refetchOnMount: false,
   });
-
-  React.useEffect(() => {
-    if (apiQuery.isPlaceholderData) {
-      return;
-    }
-
-    if (apiQuery.isError && apiQuery.errorUpdateCount === 1) {
-      setRefetchEnabled(true);
-    } else if (!apiQuery.isError) {
-      setRefetchEnabled(false);
-    }
-  }, [ apiQuery.errorUpdateCount, apiQuery.isError, apiQuery.isPlaceholderData ]);
-
-  React.useEffect(() => {
-    if (!rpcQuery.isPlaceholderData && !rpcQuery.data) {
-      setRefetchEnabled(false);
-    }
-  }, [ rpcQuery.data, rpcQuery.isPlaceholderData ]);
-
-  const isRpcQuery = Boolean((
-    blockQuery.isDegradedData ||
-    ((apiQuery.isError || apiQuery.isPlaceholderData) && apiQuery.errorUpdateCount > 0)
-  ) && rpcQuery.data);
 
   const rpcQueryWithPages: QueryWithPagesResult<'block_txs'> = React.useMemo(() => {
     return {
@@ -162,10 +108,10 @@ export default function useBlockTxQuery({ heightOrHash, blockQuery, tab }: Param
     };
   }, [ rpcQuery ]);
 
-  const query = isRpcQuery ? rpcQueryWithPages : apiQuery;
+  const query = rpcQueryWithPages;
 
   return {
     ...query,
-    isDegradedData: isRpcQuery,
+    isDegradedData: true,
   };
 }

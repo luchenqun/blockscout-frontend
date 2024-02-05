@@ -55,10 +55,7 @@ const BlockPageContent = () => {
       id: 'txs',
       title: 'Transactions',
       component: (
-        <>
-          { blockTxsQuery.isDegradedData && <ServiceDegradationWarning isLoading={ blockTxsQuery.isPlaceholderData } mb={ 6 }/> }
-          <TxsWithFrontendSorting query={ blockTxsQuery } showBlockInfo={ false } showSocketInfo={ false }/>
-        </>
+        <TxsWithFrontendSorting query={ blockTxsQuery } showBlockInfo={ false } showSocketInfo={ false }/>
       ),
     },
     config.features.beaconChain.isEnabled && Boolean(blockQuery.data?.withdrawals_count) ?
