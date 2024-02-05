@@ -16,12 +16,8 @@ import useTabIndexFromQuery from 'ui/shared/Tabs/useTabIndexFromQuery';
 import TxDetails from 'ui/tx/TxDetails';
 import TxDetailsDegraded from 'ui/tx/TxDetailsDegraded';
 import TxDetailsWrapped from 'ui/tx/TxDetailsWrapped';
-import TxInternals from 'ui/tx/TxInternals';
 import TxLogs from 'ui/tx/TxLogs';
 import TxRawTrace from 'ui/tx/TxRawTrace';
-import TxState from 'ui/tx/TxState';
-import TxSubHeading from 'ui/tx/TxSubHeading';
-import TxTokenTransfer from 'ui/tx/TxTokenTransfer';
 import TxUserOps from 'ui/tx/TxUserOps';
 import useTxQuery from 'ui/tx/useTxQuery';
 
@@ -49,13 +45,10 @@ const TransactionPageContent = () => {
       config.features.suave.isEnabled && data?.wrapped ?
         { id: 'wrapped', title: 'Regular tx details', component: <TxDetailsWrapped data={ data.wrapped }/> } :
         undefined,
-      { id: 'token_transfers', title: 'Token transfers', component: <TxTokenTransfer txQuery={ txQuery }/> },
       config.features.userOps.isEnabled ?
         { id: 'user_ops', title: 'User operations', component: <TxUserOps txQuery={ txQuery }/> } :
         undefined,
-      { id: 'internal', title: 'Internal txns', component: <TxInternals txQuery={ txQuery }/> },
       { id: 'logs', title: 'Logs', component: <TxLogs txQuery={ txQuery }/> },
-      { id: 'state', title: 'State', component: <TxState txQuery={ txQuery }/> },
       { id: 'raw_trace', title: 'Raw trace', component: <TxRawTrace txQuery={ txQuery }/> },
     ].filter(Boolean);
   })();
@@ -82,8 +75,6 @@ const TransactionPageContent = () => {
     };
   }, [ appProps.referrer ]);
 
-  const titleSecondRow = <TxSubHeading hash={ hash } hasTag={ Boolean(data?.tx_tag) }/>;
-
   const content = (() => {
     if (isPlaceholderData && !showDegradedView) {
       return (
@@ -108,7 +99,6 @@ const TransactionPageContent = () => {
         title="Transaction details"
         backLink={ backLink }
         contentAfter={ tags }
-        secondRow={ titleSecondRow }
       />
       { content }
     </>

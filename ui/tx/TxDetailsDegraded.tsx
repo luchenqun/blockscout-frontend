@@ -1,4 +1,3 @@
-import { Flex } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import type { Chain, GetBlockReturnType, GetTransactionReturnType, TransactionReceipt } from 'viem';
@@ -11,8 +10,6 @@ import hexToDecimal from 'lib/hexToDecimal';
 import { publicClient } from 'lib/web3/client';
 import { GET_BLOCK, GET_TRANSACTION, GET_TRANSACTION_RECEIPT, GET_TRANSACTION_CONFIRMATIONS } from 'stubs/RPC';
 import { unknownAddress } from 'ui/shared/address/utils';
-import ServiceDegradationWarning from 'ui/shared/alerts/ServiceDegradationWarning';
-import TestnetWarning from 'ui/shared/alerts/TestnetWarning';
 import DataFetchAlert from 'ui/shared/DataFetchAlert';
 
 import TxInfo from './details/TxInfo';
@@ -123,13 +120,7 @@ const TxDetailsDegraded = ({ hash }: Props) => {
   }
 
   return (
-    <>
-      <Flex rowGap={ 2 } mb={ 6 } flexDir="column">
-        <TestnetWarning isLoading={ query.isPlaceholderData }/>
-        <ServiceDegradationWarning isLoading={ query.isPlaceholderData }/>
-      </Flex>
-      <TxInfo data={ query.data } isLoading={ query.isPlaceholderData }/>
-    </>
+    <TxInfo data={ query.data } isLoading={ query.isPlaceholderData }/>
   );
 };
 
