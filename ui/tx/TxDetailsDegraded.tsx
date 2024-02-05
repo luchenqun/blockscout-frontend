@@ -30,10 +30,7 @@ interface Props {
   txQuery: TxQuery;
 }
 
-const TxDetailsDegraded = ({ hash, txQuery }: Props) => {
-
-  const [ originalError ] = React.useState(txQuery.error);
-
+const TxDetailsDegraded = ({ hash }: Props) => {
   const query = useQuery<RpcResponseType, unknown, Transaction | null>({
     queryKey: [ 'RPC', 'tx', { hash } ],
     queryFn: async() => {
@@ -67,7 +64,6 @@ const TxDetailsDegraded = ({ hash, txQuery }: Props) => {
       })();
 
       const gasPrice = txReceipt?.effectiveGasPrice ?? tx.gasPrice;
-
       return {
         from: { ...unknownAddress, hash: tx.from as string },
         to: tx.to ? { ...unknownAddress, hash: tx.to as string } : null,
@@ -77,7 +73,7 @@ const TxDetailsDegraded = ({ hash, txQuery }: Props) => {
         status,
         block: tx.blockNumber ? Number(tx.blockNumber) : null,
         value: tx.value.toString(),
-        gas_price: txReceipt?.effectiveGasPrice.toString() ?? tx.gasPrice?.toString() ?? null,
+        gas_price: gasPrice?.toString(),
         base_fee_per_gas: block?.baseFeePerGas?.toString() ?? null,
         max_fee_per_gas: tx.maxFeePerGas?.toString() ?? null,
         max_priority_fee_per_gas: tx.maxPriorityFeePerGas?.toString() ?? null,
@@ -117,30 +113,12 @@ const TxDetailsDegraded = ({ hash, txQuery }: Props) => {
       GET_BLOCK,
     ],
     refetchOnMount: false,
-    enabled: !txQuery.isPlaceholderData,
+    enabled: true,
     retry: 2,
     retryDelay: 5 * SECOND,
   });
 
-  const hasData = Boolean(query.data);
-
-  React.useEffect(() => {
-    if (!query.isPlaceholderData && hasData) {
-      txQuery.setRefetchOnError.on();
-    }
-  }, [ hasData, query.isPlaceholderData, txQuery ]);
-
-  React.useEffect(() => {
-    return () => {
-      txQuery.setRefetchOnError.off();
-    };
-  }, [ txQuery.setRefetchOnError ]);
-
   if (!query.data) {
-    if (originalError?.status === 404) {
-      throw Error('Not found', { cause: { status: 404 } as unknown as Error });
-    }
-
     return <DataFetchAlert/>;
   }
 
@@ -148,7 +126,7 @@ const TxDetailsDegraded = ({ hash, txQuery }: Props) => {
     <>
       <Flex rowGap={ 2 } mb={ 6 } flexDir="column">
         <TestnetWarning isLoading={ query.isPlaceholderData }/>
-        { originalError?.status !== 404 && <ServiceDegradationWarning isLoading={ query.isPlaceholderData }/> }
+        <ServiceDegradationWarning isLoading={ query.isPlaceholderData }/>
       </Flex>
       <TxInfo data={ query.data } isLoading={ query.isPlaceholderData }/>
     </>
