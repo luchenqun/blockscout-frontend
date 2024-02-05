@@ -8,8 +8,6 @@ import useHasAccount from 'lib/hooks/useHasAccount';
 import useNavItems, { isGroupItem } from 'lib/hooks/useNavItems';
 import getDefaultTransitionProps from 'theme/utils/getDefaultTransitionProps';
 import IconSvg from 'ui/shared/IconSvg';
-import NetworkLogo from 'ui/snippets/networkMenu/NetworkLogo';
-import NetworkMenu from 'ui/snippets/networkMenu/NetworkMenu';
 
 import NavLink from './NavLink';
 import NavLinkGroupDesktop from './NavLinkGroupDesktop';
@@ -65,24 +63,7 @@ const NavigationDesktop = () => {
       }}
     >
       { config.chain.isTestnet && <IconSvg name="testnet" h="14px" w="49px" color="red.400" position="absolute" pl={ 3 } top="34px"/> }
-      <Box
-        as="header"
-        display="flex"
-        justifyContent="flex-start"
-        alignItems="center"
-        flexDirection="row"
-        w="100%"
-        pl={{ lg: isExpanded ? 3 : '15px', xl: isCollapsed ? '15px' : 3 }}
-        pr={{ lg: isExpanded ? 0 : '15px', xl: isCollapsed ? '15px' : 0 }}
-        h={ 10 }
-        transitionProperty="padding"
-        transitionDuration="normal"
-        transitionTimingFunction="ease"
-      >
-        <NetworkLogo isCollapsed={ isCollapsed }/>
-        { Boolean(config.UI.sidebar.featuredNetworks) && <NetworkMenu isCollapsed={ isCollapsed }/> }
-      </Box>
-      <Box as="nav" mt={ 8 } w="100%">
+      <Box as="nav" mt={ -2 } w="100%">
         <VStack as="ul" spacing="1" alignItems="flex-start">
           { mainNavItems.map((item) => {
             if (isGroupItem(item)) {
