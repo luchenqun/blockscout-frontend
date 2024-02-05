@@ -27,6 +27,12 @@ export default function useNavItems(): ReturnType {
   return React.useMemo(() => {
     const mainNavItems: ReturnType['mainNavItems'] = [
       {
+        text: 'Overview',
+        nextRoute: { pathname: '/' as const },
+        icon: 'networks',
+        isActive: pathname === '/',
+      },
+      {
         text: 'Blocks',
         nextRoute: { pathname: '/blocks' as const },
         icon: 'block',
