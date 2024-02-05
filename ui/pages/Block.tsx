@@ -48,10 +48,7 @@ const BlockPageContent = () => {
       id: 'index',
       title: 'Details',
       component: (
-        <>
-          { blockQuery.isDegradedData && <ServiceDegradationWarning isLoading={ blockQuery.isPlaceholderData } mb={ 6 }/> }
-          <BlockDetails query={ blockQuery }/>
-        </>
+        <BlockDetails query={ blockQuery }/>
       ),
     },
     {

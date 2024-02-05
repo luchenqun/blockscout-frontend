@@ -1,17 +1,12 @@
 import type { UseQueryResult } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
-import React from 'react';
 import type { Chain, GetBlockReturnType } from 'viem';
 
 import type { Block } from 'types/api/block';
 
 import type { ResourceError } from 'lib/api/resources';
-import useApiQuery from 'lib/api/useApiQuery';
-import { retry } from 'lib/api/useQueryClientConfig';
-import { SECOND } from 'lib/consts';
 import dayjs from 'lib/date/dayjs';
 import { publicClient } from 'lib/web3/client';
-import { BLOCK } from 'stubs/block';
 import { GET_BLOCK } from 'stubs/RPC';
 import { unknownAddress } from 'ui/shared/address/utils';
 
@@ -26,27 +21,6 @@ interface Params {
 }
 
 export default function useBlockQuery({ heightOrHash }: Params): BlockQuery {
-  const [ isRefetchEnabled, setRefetchEnabled ] = React.useState(false);
-
-  const apiQuery = useApiQuery<'block', { status: number }>('block', {
-    pathParams: { height_or_hash: heightOrHash },
-    queryOptions: {
-      enabled: Boolean(heightOrHash),
-      placeholderData: BLOCK,
-      refetchOnMount: false,
-      retry: (failureCount, error) => {
-        if (isRefetchEnabled) {
-          return false;
-        }
-
-        return retry(failureCount, error);
-      },
-      refetchInterval: (): number | false => {
-        return isRefetchEnabled ? 15 * SECOND : false;
-      },
-    },
-  });
-
   const rpcQuery = useQuery<RpcResponseType, unknown, Block | null>({
     queryKey: [ 'RPC', 'block', { heightOrHash } ],
     queryFn: async() => {
@@ -86,34 +60,15 @@ export default function useBlockQuery({ heightOrHash }: Params): BlockQuery {
       };
     },
     placeholderData: GET_BLOCK,
-    enabled: apiQuery.isError || apiQuery.errorUpdateCount > 0,
+    enabled: true,
     retry: false,
     refetchOnMount: false,
   });
 
-  React.useEffect(() => {
-    if (apiQuery.isPlaceholderData) {
-      return;
-    }
-
-    if (apiQuery.isError && apiQuery.errorUpdateCount === 1) {
-      setRefetchEnabled(true);
-    } else if (!apiQuery.isError) {
-      setRefetchEnabled(false);
-    }
-  }, [ apiQuery.errorUpdateCount, apiQuery.isError, apiQuery.isPlaceholderData ]);
-
-  React.useEffect(() => {
-    if (!rpcQuery.isPlaceholderData && !rpcQuery.data) {
-      setRefetchEnabled(false);
-    }
-  }, [ rpcQuery.data, rpcQuery.isPlaceholderData ]);
-
-  const isRpcQuery = Boolean((apiQuery.isError || apiQuery.isPlaceholderData) && apiQuery.errorUpdateCount > 0 && rpcQuery.data);
-  const query = isRpcQuery ? rpcQuery as UseQueryResult<Block, ResourceError<{ status: number }>> : apiQuery;
+  const query = rpcQuery as UseQueryResult<Block, ResourceError<{ status: number }>>;
 
   return {
     ...query,
-    isDegradedData: isRpcQuery,
+    isDegradedData: true,
   };
 }
