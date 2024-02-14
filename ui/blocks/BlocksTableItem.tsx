@@ -13,8 +13,8 @@ import { space } from 'lib/html-entities';
 import { currencyUnits } from 'lib/units';
 import BlockTimestamp from 'ui/blocks/BlockTimestamp';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
-import * as EntityBase from 'ui/shared/entities/base/components';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
+import BlockHashEntity from 'ui/shared/entities/block/BlockHashEntity';
 import GasUsedToTargetRatio from 'ui/shared/GasUsedToTargetRatio';
 import LinkInternal from 'ui/shared/LinkInternal';
 import TextSeparator from 'ui/shared/TextSeparator';
@@ -104,17 +104,14 @@ const BlocksTableItem = ({ data, isLoading, enableTimeIncrement }: Props) => {
         </Td>
       ) }
       <Td fontSize="sm">
-        <Skeleton isLoaded={ !isLoading } display="inline-block">
-          <LinkInternal href={ route({
-            pathname: '/block/[height_or_hash]',
-            query: { height_or_hash: String(data.hash) },
-          }) }>
-            { data.hash }
-          </LinkInternal>
-          <EntityBase.Copy
-            text={ data.hash }
-          />
-        </Skeleton>
+        <BlockHashEntity
+          isLoading={ isLoading }
+          hash={ data.hash }
+          noIcon
+          fontSize="sm"
+          lineHeight={ 5 }
+          fontWeight={ 600 }
+        />
       </Td>
       <Td fontSize="sm">
         <Skeleton isLoaded={ !isLoading } display="inline-block">
