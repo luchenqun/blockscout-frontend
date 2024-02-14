@@ -10,7 +10,6 @@ interface Props extends PaginationParams {
 }
 
 const Pagination = ({ page, onNextPageClick, onPrevPageClick, resetPage, hasPages, hasNextPage, className, canGoBackwards, isLoading, isVisible }: Props) => {
-
   if (!isVisible) {
     return null;
   }
@@ -28,9 +27,9 @@ const Pagination = ({ page, onNextPageClick, onPrevPageClick, resetPage, hasPage
           variant="outline"
           size="sm"
           onClick={ resetPage }
-          isDisabled={ page === 1 || isLoading }
+          isDisabled={ isLoading }
         >
-        First
+        Refresh
         </Button>
       </Skeleton>
       <Skeleton isLoaded={ !showSkeleton } display="inline-block" mr={ 3 } borderRadius="base">

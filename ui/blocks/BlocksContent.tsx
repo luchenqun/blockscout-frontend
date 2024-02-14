@@ -98,7 +98,7 @@ const BlocksContent = ({ type, query }: Props) => {
           top={ query.pagination.isVisible ? 80 : 0 }
           page={ query.pagination.page }
           isLoading={ query.isPlaceholderData }
-          showSocketInfo={ query.pagination.page === 1 }
+          showSocketInfo={ query.pagination.page === 1 && false }
           socketInfoNum={ newItemsCount }
           socketInfoAlert={ socketAlert }
         />
