@@ -86,3 +86,5 @@ export const GET_BLOCK_WITH_TRANSACTIONS: GetBlockReturnType<Chain, true, 'lates
   ...GET_BLOCK,
   transactions: Array(50).fill(GET_TRANSACTION),
 };
+
+export const GET_TRANSACTION_RECEIPTS: Array<TransactionReceipt> = Array(50).fill(GET_TRANSACTION_RECEIPT);

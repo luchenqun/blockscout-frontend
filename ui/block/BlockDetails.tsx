@@ -334,14 +334,6 @@ const BlockDetails = ({ query }: Props) => {
           </Skeleton>
         </DetailsInfoItem>
       ) }
-      { /* api doesn't support extra data yet */ }
-      { /* <DetailsInfoItem
-        title="Extra data"
-        hint={ `Any data that can be included by the ${ validatorTitle } in the block` }
-      >
-        <Text whiteSpace="pre">{ data.extra_data } </Text>
-        <Text variant="secondary">(Hex: { data.extra_data })</Text>
-      </DetailsInfoItem> */ }
 
       { /* CUT */ }
       {
@@ -487,6 +479,14 @@ const BlockDetails = ({ query }: Props) => {
               { data.nonce }
             </DetailsInfoItem>
           ) }
+          { /* api doesn't support extra data yet */ }
+          <DetailsInfoItem
+            title="Extra data"
+            hint={ `Any data that can be included by the ${ validatorTitle } in the block` }
+          >
+            <Text whiteSpace="pre">{ data.extra_data } </Text>
+            <Text variant="secondary">(Hex: { data.extra_data })</Text>
+          </DetailsInfoItem>
         </>
       ) }
     </Grid>
