@@ -37,7 +37,7 @@ interface Props {
 const isRollup = config.features.optimisticRollup.isEnabled || config.features.zkEvmRollup.isEnabled;
 
 const BlockDetails = ({ query }: Props) => {
-  const [ isExpanded, setIsExpanded ] = React.useState(false);
+  const [ isExpanded, setIsExpanded ] = React.useState(true);
   const router = useRouter();
   const heightOrHash = getQueryParamString(router.query.height_or_hash);
 
@@ -344,25 +344,31 @@ const BlockDetails = ({ query }: Props) => {
       </DetailsInfoItem> */ }
 
       { /* CUT */ }
-      <GridItem colSpan={{ base: undefined, lg: 2 }}>
-        <Element name="BlockDetails__cutLink">
-          <Skeleton isLoaded={ !isPlaceholderData } mt={ 6 } display="inline-block">
-            <Link
-              fontSize="sm"
-              textDecorationLine="underline"
-              textDecorationStyle="dashed"
-              onClick={ handleCutClick }
-            >
-              { isExpanded ? 'Hide details' : 'View details' }
-            </Link>
-          </Skeleton>
-        </Element>
-      </GridItem>
+      {
+        false && (
+          <GridItem colSpan={{ base: undefined, lg: 2 }}>
+            <Element name="BlockDetails__cutLink">
+              <Skeleton isLoaded={ !isPlaceholderData } mt={ 6 } display="inline-block">
+                <Link
+                  fontSize="sm"
+                  textDecorationLine="underline"
+                  textDecorationStyle="dashed"
+                  onClick={ handleCutClick }
+                >
+                  { isExpanded ? 'Hide details' : 'View details' }
+                </Link>
+              </Skeleton>
+            </Element>
+          </GridItem>
+        )
+      }
+
+      <DetailsInfoItemDivider/>
 
       { /* ADDITIONAL INFO */ }
       { isExpanded && !isPlaceholderData && (
         <>
-          <GridItem colSpan={{ base: undefined, lg: 2 }} mt={{ base: 1, lg: 4 }}/>
+          { /* <GridItem colSpan={{ base: undefined, lg: 2 }} mt={{ base: 1, lg: 4 }}/> */ }
 
           { data.bitcoin_merged_mining_header && (
             <DetailsInfoItem

@@ -60,7 +60,7 @@ interface Props {
 }
 
 const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
-  const [ isExpanded, setIsExpanded ] = React.useState(false);
+  const [ isExpanded, setIsExpanded ] = React.useState(true);
 
   const handleCutClick = React.useCallback(() => {
     setIsExpanded((flag) => !flag);
@@ -481,24 +481,31 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
           ) }
         </>
       ) }
-      <GridItem colSpan={{ base: undefined, lg: 2 }}>
-        <Element name="TxInfo__cutLink">
-          <Skeleton isLoaded={ !isLoading } mt={ 6 } display="inline-block">
-            <Link
-              display="inline-block"
-              fontSize="sm"
-              textDecorationLine="underline"
-              textDecorationStyle="dashed"
-              onClick={ handleCutClick }
-            >
-              { isExpanded ? 'Hide details' : 'View details' }
-            </Link>
-          </Skeleton>
-        </Element>
-      </GridItem>
+      {
+        false && (
+          <GridItem colSpan={{ base: undefined, lg: 2 }}>
+            <Element name="TxInfo__cutLink">
+              <Skeleton isLoaded={ !isLoading } mt={ 6 } display="inline-block">
+                <Link
+                  display="inline-block"
+                  fontSize="sm"
+                  textDecorationLine="underline"
+                  textDecorationStyle="dashed"
+                  onClick={ handleCutClick }
+                >
+                  { isExpanded ? 'Hide details' : 'View details' }
+                </Link>
+              </Skeleton>
+            </Element>
+          </GridItem>
+        )
+      }
+
+      <DetailsInfoItemDivider/>
+
       { isExpanded && (
         <>
-          <GridItem colSpan={{ base: undefined, lg: 2 }} mt={{ base: 1, lg: 4 }}/>
+          { /* <GridItem colSpan={{ base: undefined, lg: 2 }} mt={{ base: 1, lg: 4 }}/> */ }
           <TxDetailsOther nonce={ data.nonce } type={ data.type } position={ data.position }/>
           <DetailsInfoItem
             title="Raw input"
