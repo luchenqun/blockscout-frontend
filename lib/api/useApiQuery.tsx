@@ -1,5 +1,6 @@
 import type { UseQueryOptions } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
+import type { Chain, GetBlockReturnType } from 'viem';
 
 import type { Block } from 'types/api/block';
 import type { Transaction } from 'types/api/transaction';
@@ -207,6 +208,53 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
         data.next_page_params.block_number = curBlockNumber;
 
         return Promise.resolve(data as ResourcePayload<R>);
+      } else if (resource === 'quick_search') {
+        if (queryParams && Boolean(queryParams.q)) {
+          let block: GetBlockReturnType<Chain, boolean, 'latest'> | undefined;
+
+          let query = queryParams.q as string;
+          if (query.startsWith('0x')) {
+            if (query.length === 64 || query.length === 40) {
+              query = '0x' + query;
+            }
+
+            if (query.length === 66) {
+              // search tx receipt
+              const receipt = await publicClient.getTransactionReceipt({ hash: query as `0x${ string }` }).catch(() => null);
+              if (receipt) {
+                const blockParams = { blockNumber: receipt.blockNumber, includeTransactions: true };
+                const block = await publicClient.getBlock(blockParams);
+
+                const data: unknown = [ {
+                  timestamp: dayjs.unix(Number(block.timestamp)).format(),
+                  tx_hash: receipt.transactionHash,
+                  type: 'transaction',
+                  url: `/tx/${ receipt.transactionHash }`,
+                } ];
+                return Promise.resolve(data as ResourcePayload<R>);
+              }
+
+              // search block
+              const blockParams = { blockHash: query as `0x${ string }`, includeTransactions: false };
+              block = await publicClient.getBlock(blockParams).catch(() => undefined);
+            }
+          } else if (/^[1-9]\d*$/.test(query)) {
+            const blockParams = { blockNumber: BigInt(query), includeTransactions: false };
+            block = await publicClient.getBlock(blockParams).catch(() => undefined);
+          }
+
+          if (block) {
+            const data: unknown = [ {
+              block_hash: block.hash,
+              block_number: Number(block.number),
+              block_type: 'block',
+              timestamp: dayjs.unix(Number(block.timestamp)).format(),
+              type: 'block',
+              url: `/block/${ block.hash }`,
+            } ];
+            return Promise.resolve(data as ResourcePayload<R>);
+          }
+        }
       }
 
       const data = apiFetch(resource, { pathParams, queryParams, fetchParams }) as Promise<ResourcePayload<R>>;
