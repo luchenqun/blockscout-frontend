@@ -53,7 +53,7 @@ const Copy = (props: CopyProps) => {
       { ...props }
       text={ props.hash }
       // by default we don't show copy icon, maybe this should be revised
-      noCopy={ props.noCopy ?? true }
+      // noCopy={ props.noCopy ?? true }
     />
   );
 };

@@ -4,7 +4,6 @@ import React from 'react';
 import type { RoutedTab } from 'ui/shared/Tabs/types';
 
 import config from 'configs/app';
-import useHasAccount from 'lib/hooks/useHasAccount';
 import useIsMobile from 'lib/hooks/useIsMobile';
 import useNewTxsSocket from 'lib/hooks/useNewTxsSocket';
 import { TX } from 'stubs/tx';
@@ -13,7 +12,6 @@ import PageTitle from 'ui/shared/Page/PageTitle';
 import Pagination from 'ui/shared/pagination/Pagination';
 import useQueryWithPages from 'ui/shared/pagination/useQueryWithPages';
 import RoutedTabs from 'ui/shared/Tabs/RoutedTabs';
-import TxsWatchlist from 'ui/txs/TxsWatchlist';
 import TxsWithFrontendSorting from 'ui/txs/TxsWithFrontendSorting';
 
 const TAB_LIST_PROPS = {
@@ -40,32 +38,18 @@ const Transactions = () => {
     },
   });
 
-  const txsWatchlistQuery = useQueryWithPages({
-    resourceName: 'txs_watchlist',
-    options: {
-      enabled: router.query.tab === 'watchlist',
-      placeholderData: generateListStub<'txs_watchlist'>(TX, 50, { next_page_params: {
-        block_number: 9005713,
-        index: 5,
-        items_count: 50,
-      } }),
-    },
-  });
-
   const { num, socketAlert } = useNewTxsSocket();
-
-  const hasAccount = useHasAccount();
 
   const tabs: Array<RoutedTab> = [
     {
       id: 'validated',
       title: verifiedTitle,
-      component:
-        <TxsWithFrontendSorting query={ txsQuery } showSocketInfo={ txsQuery.pagination.page === 1 } socketInfoNum={ num } socketInfoAlert={ socketAlert }/> },
-    {
+      component: <TxsWithFrontendSorting query={ txsQuery } showSocketInfo={ false } socketInfoNum={ num } socketInfoAlert={ socketAlert }/>,
+    },
+    txsQuery.error?.statusText === 'Keep this tab and implement it later' ? {
       id: 'pending',
       title: 'Pending',
-      component: (
+      component: (null && (
         <TxsWithFrontendSorting
           query={ txsQuery }
           showBlockInfo={ false }
@@ -73,16 +57,12 @@ const Transactions = () => {
           socketInfoNum={ num }
           socketInfoAlert={ socketAlert }
         />
+      )
       ),
-    },
-    hasAccount ? {
-      id: 'watchlist',
-      title: 'Watch list',
-      component: <TxsWatchlist query={ txsWatchlistQuery }/>,
     } : undefined,
   ].filter(Boolean);
 
-  const pagination = router.query.tab === 'watchlist' ? txsWatchlistQuery.pagination : txsQuery.pagination;
+  const pagination = txsQuery.pagination;
 
   return (
     <>

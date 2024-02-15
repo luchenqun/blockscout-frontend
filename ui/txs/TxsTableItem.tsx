@@ -106,9 +106,9 @@ const TxsTableItem = ({ tx, showBlockInfo, currentAddress, enableTimeIncrement, 
         <Td isNumeric>
           { /* eslint-disable-next-line no-nested-ternary */ }
           { tx.stability_fee ? (
-            <TxFeeStability data={ tx.stability_fee } isLoading={ isLoading } accuracy={ 8 } justifyContent="end" hideUsd/>
+            <TxFeeStability data={ tx.stability_fee } isLoading={ isLoading } accuracy={ 18 } justifyContent="end" hideUsd/>
           ) : (
-            tx.fee.value ? <CurrencyValue value={ tx.fee.value } accuracy={ 8 } isLoading={ isLoading }/> : '-'
+            tx.fee.value ? <CurrencyValue value={ tx.fee.value } accuracy={ 18 } isLoading={ isLoading }/> : '-'
           ) }
         </Td>
       ) }
