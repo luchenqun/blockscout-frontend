@@ -48,8 +48,8 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
           curBlockNumber = queryParams.block_number as number;
           itemsCount = queryParams.items_count as number;
         } else {
-          const block = await publicClient.getBlock();
-          curBlockNumber = Number(block.number);
+          const latestBlockNumber = await publicClient.getBlockNumber({ cacheTime: 0 }).catch(() => BigInt(0));
+          curBlockNumber = Number(latestBlockNumber);
         }
 
         const data = {
@@ -104,12 +104,13 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
         const MaxItem = 400;
         let curBlockNumber = 0;
         let itemsCount = 100;
-        const latestBlock = await publicClient.getBlock();
+        let latestBlockNumber = BigInt(0);
         if (queryParams && Boolean(queryParams.block_number)) {
           curBlockNumber = queryParams.block_number as number;
           itemsCount = queryParams.items_count as number;
         } else {
-          curBlockNumber = Number(latestBlock.number);
+          latestBlockNumber = await publicClient.getBlockNumber({ cacheTime: 0 }).catch(() => BigInt(0));
+          curBlockNumber = Number(latestBlockNumber);
         }
 
         const data = {
@@ -151,7 +152,7 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
                 raw_input: tx.input,
                 gas_used: null,
                 gas_limit: tx.gas.toString(),
-                confirmations: Number(latestBlock.number - block.number + BigInt(1)),
+                confirmations: Number(latestBlockNumber - block.number + BigInt(1)),
                 fee: {
                   value: null,
                   type: 'actual',
@@ -301,6 +302,145 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
           base_fee_per_gas: latestBlock.baseFeePerGas?.toString() || '0',
         };
         return Promise.resolve(data as ResourcePayload<R>);
+      } else if (resource === 'homepage_blocks') {
+        let itemsCount = 5;
+        let curBlockNumber = await publicClient.getBlockNumber({ cacheTime: 0 }).catch(() => BigInt(0));
+
+        let data: Array<Block> = [ ];
+        if (curBlockNumber) {
+          const promises = [];
+          while (curBlockNumber >= 1 && itemsCount > 0) {
+            itemsCount -= 1;
+            curBlockNumber = curBlockNumber - BigInt(1);
+            const blockParams = { blockNumber: curBlockNumber };
+            const promise = publicClient.getBlock(blockParams).then((block) => {
+              return {
+                height: Number(block.number),
+                timestamp: dayjs.unix(Number(block.timestamp)).format(),
+                tx_count: block.transactions.length,
+                miner: { ...unknownAddress, hash: block.miner },
+                size: Number(block.size),
+                hash: block.hash,
+                parent_hash: block.parentHash,
+                difficulty: block.difficulty.toString(),
+                total_difficulty: block.totalDifficulty?.toString() ?? null,
+                gas_used: block.gasUsed.toString(),
+                gas_limit: block.gasLimit.toString(),
+                nonce: block.nonce,
+                base_fee_per_gas: block.baseFeePerGas?.toString() || '0',
+                burnt_fees: null,
+                priority_fee: null,
+                extra_data: block.extraData,
+                state_root: block.stateRoot,
+                gas_target_percentage: null,
+                gas_used_percentage: null,
+                burnt_fees_percentage: null,
+                type: 'block',
+                tx_fees: null,
+                uncles_hashes: block.uncles,
+                withdrawals_count: block.withdrawals?.length,
+              } as Block;
+            });
+            promises.push(promise);
+          }
+
+          data = await Promise.all(promises);
+        }
+        return Promise.resolve(data as ResourcePayload<R>);
+      } else if (resource === 'homepage_txs') {
+        const MaxItem = 6;
+        const latestBlockNumber = await publicClient.getBlockNumber({ cacheTime: 0 }).catch(() => BigInt(0));
+
+        let itemsCount = 100;
+        let curBlockNumber = Number(latestBlockNumber);
+
+        let items = [];
+        while (curBlockNumber >= 1 && itemsCount > 0 && items.length < MaxItem) {
+          itemsCount -= 1;
+          curBlockNumber -= 1;
+          const blockParams = { blockNumber: BigInt(curBlockNumber), includeTransactions: true };
+          const block = await publicClient.getBlock(blockParams);
+          const txs = block.transactions
+            .map((tx) => {
+              if (typeof tx === 'string') {
+                return;
+              }
+
+              return {
+                from: { ...unknownAddress, hash: tx.from as string },
+                to: tx.to ? { ...unknownAddress, hash: tx.to as string } : null,
+                hash: tx.hash as string,
+                timestamp: block?.timestamp ? dayjs.unix(Number(block.timestamp)).format() : null,
+                confirmation_duration: null,
+                status: undefined,
+                block: Number(block.number),
+                value: tx.value.toString(),
+                gas_price: tx.gasPrice?.toString() ?? null,
+                base_fee_per_gas: block?.baseFeePerGas?.toString() ?? null,
+                max_fee_per_gas: tx.maxFeePerGas?.toString() ?? null,
+                max_priority_fee_per_gas: tx.maxPriorityFeePerGas?.toString() ?? null,
+                nonce: tx.nonce,
+                position: tx.transactionIndex,
+                type: tx.typeHex ? hexToDecimal(tx.typeHex) : null,
+                raw_input: tx.input,
+                gas_used: null,
+                gas_limit: tx.gas.toString(),
+                confirmations: Number(latestBlockNumber - block.number + BigInt(1)),
+                fee: {
+                  value: null,
+                  type: 'actual',
+                },
+                created_contract: null,
+                result: '',
+                priority_fee: null,
+                tx_burnt_fee: null,
+                revert_reason: null,
+                decoded_input: null,
+                has_error_in_internal_txs: null,
+                token_transfers: null,
+                token_transfers_overflow: false,
+                exchange_rate: null,
+                method: null,
+                tx_types: [],
+                tx_tag: null,
+                actions: [],
+              } as Transaction;
+            })
+            .filter(Boolean);
+
+          items.push(...txs);
+        }
+        items = items.slice(0, MaxItem);
+
+        const promises = [];
+        for (const item of items) {
+          const promise = publicClient.getTransactionReceipt({ hash: item.hash as `0x${ string }` }).then((receipt) => {
+            return receipt;
+          });
+          promises.push(promise);
+        }
+        const receipts = await Promise.all(promises);
+        if (items.length === receipts.length) {
+          for (let i = 0; i < items.length; i++) {
+            const txReceipt = receipts[i];
+            const tx = items[i];
+            const status = (() => {
+              if (!txReceipt) {
+                return null;
+              }
+              return txReceipt.status === 'success' ? 'ok' : 'error';
+            })();
+
+            const gasPrice = txReceipt?.effectiveGasPrice ?? tx.gas_price;
+            tx.status = status;
+            tx.gas_price = gasPrice?.toString() ?? null;
+            tx.gas_used = txReceipt?.gasUsed?.toString() ?? null;
+            tx.fee.value = txReceipt && gasPrice ? (txReceipt.gasUsed * BigInt(gasPrice)).toString() : null;
+            tx.created_contract = txReceipt?.contractAddress ? { ...unknownAddress, hash: txReceipt.contractAddress, is_contract: true } : null;
+          }
+        }
+
+        return Promise.resolve(items as ResourcePayload<R>);
       }
 
       const data = apiFetch(resource, { pathParams, queryParams, fetchParams }) as Promise<ResourcePayload<R>>;

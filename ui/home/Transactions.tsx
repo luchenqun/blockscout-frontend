@@ -25,10 +25,7 @@ const TransactionsHome = () => {
   }
 
   return (
-    <>
-      <Heading as="h4" size="sm" mb={ 4 }>Latest transactions</Heading>
-      <LatestTxs/>
-    </>
+    <LatestTxs/>
   );
 };
 

@@ -97,9 +97,9 @@ const LatestTxsItem = ({ tx, isLoading }: Props) => {
           <Skeleton isLoaded={ !isLoading } display="flex" whiteSpace="pre" my="3px">
             <Text as="span">Fee </Text>
             { tx.stability_fee ? (
-              <TxFeeStability data={ tx.stability_fee } accuracy={ 5 } color="text_secondary" hideUsd/>
+              <TxFeeStability data={ tx.stability_fee } accuracy={ 18 } color="text_secondary" hideUsd/>
             ) : (
-              <Text as="span" variant="secondary">{ tx.fee.value ? getValueWithUnit(tx.fee.value).dp(5).toFormat() : '-' }</Text>
+              <Text as="span" variant="secondary">{ tx.fee.value ? getValueWithUnit(tx.fee.value).dp(18).toFormat() : '-' }</Text>
             ) }
           </Skeleton>
         ) }
