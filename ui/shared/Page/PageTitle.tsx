@@ -11,6 +11,7 @@ type BackLinkProp = { label: string; url: string } | { label: string; onClick: (
 
 type Props = {
   title: string;
+  hint?: string;
   className?: string;
   backLink?: BackLinkProp;
   beforeTitle?: React.ReactNode;
@@ -53,7 +54,7 @@ const BackLink = (props: BackLinkProp & { isLoading?: boolean }) => {
   );
 };
 
-const PageTitle = ({ title, contentAfter, withTextAd, backLink, className, isLoading, afterTitle, beforeTitle, secondRow }: Props) => {
+const PageTitle = ({ title, hint, contentAfter, withTextAd, backLink, className, isLoading, afterTitle, beforeTitle, secondRow }: Props) => {
   const tooltip = useDisclosure();
   const isMobile = useIsMobile();
   const [ isTextTruncated, setIsTextTruncated ] = React.useState(false);
@@ -134,6 +135,7 @@ const PageTitle = ({ title, contentAfter, withTextAd, backLink, className, isLoa
                 <span ref={ textRef }>
                   { title }
                 </span>
+                { hint && <span style={{ fontSize: '10px' }}>{ hint }</span> }
               </Heading>
             </Tooltip>
           </Skeleton>

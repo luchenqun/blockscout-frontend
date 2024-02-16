@@ -4,6 +4,7 @@ import {
   Grid,
   Skeleton,
 } from '@chakra-ui/react';
+import BigNumber from 'bignumber.js';
 import { motion } from 'framer-motion';
 import React from 'react';
 
@@ -11,7 +12,9 @@ import type { Block } from 'types/api/block';
 
 import config from 'configs/app';
 import getBlockTotalReward from 'lib/block/getBlockTotalReward';
+import { WEI_IN_GWEI } from 'lib/consts';
 import getNetworkValidatorTitle from 'lib/networks/getNetworkValidatorTitle';
+import { currencyUnits } from 'lib/units';
 import BlockTimestamp from 'ui/blocks/BlockTimestamp';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
@@ -59,12 +62,23 @@ const LatestBlocksItem = ({ block, isLoading }: Props) => {
         <Skeleton isLoaded={ !isLoading }>Txn</Skeleton>
         <Skeleton isLoaded={ !isLoading } color="text_secondary"><span>{ block.tx_count }</span></Skeleton>
 
-        { !config.features.optimisticRollup.isEnabled && !config.UI.views.block.hiddenFields?.total_reward && (
+        { false && !config.features.optimisticRollup.isEnabled && !config.UI.views.block.hiddenFields?.total_reward && (
           <>
             <Skeleton isLoaded={ !isLoading }>Reward</Skeleton>
             <Skeleton isLoaded={ !isLoading } color="text_secondary"><span>{ totalReward.dp(10).toFixed() }</span></Skeleton>
           </>
         ) }
+
+        {
+          block.base_fee_per_gas && (
+            <>
+              <Skeleton isLoaded={ !isLoading }>Base fee</Skeleton>
+              <Skeleton isLoaded={ !isLoading } color="text_secondary">
+                <span>            { BigNumber(block.base_fee_per_gas).dividedBy(WEI_IN_GWEI).toFixed() + ' ' + currencyUnits.gwei }</span>
+              </Skeleton>
+            </>
+          )
+        }
 
         { !config.features.optimisticRollup.isEnabled && !config.UI.views.block.hiddenFields?.miner && (
           <>

@@ -35,7 +35,7 @@ const LatestTransactions = () => {
       <>
         <Heading as="h4" size="sm" mb={ 4 } style={{ cursor: 'pointer' }} onClick={ () => {
           refetch();
-        } }>Latest transactions</Heading>
+        } }>Latest transactions<span style={{ fontSize: '10px' }}> only query the latest 300 blocks</span></Heading>
         { /* <SocketNewItemsNotice borderBottomRadius={ 0 } url={ txsUrl } num={ num } alert={ socketAlert } isLoading={ isPlaceholderData }/> */ }
         <Box mb={ 3 } display={{ base: 'block', lg: 'none' }}>
           { data.slice(0, txsCount).map(((tx, index) => (

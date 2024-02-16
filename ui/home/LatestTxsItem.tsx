@@ -16,6 +16,7 @@ import useTimeAgoIncrement from 'lib/hooks/useTimeAgoIncrement';
 import { currencyUnits } from 'lib/units';
 import AddressFromTo from 'ui/shared/address/AddressFromTo';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
+import BlockHeight from 'ui/shared/statusTag/BlockHeight';
 import TxStatus from 'ui/shared/statusTag/TxStatus';
 import TxFeeStability from 'ui/shared/tx/TxFeeStability';
 import TxWatchListTags from 'ui/shared/tx/TxWatchListTags';
@@ -51,6 +52,7 @@ const LatestTxsItem = ({ tx, isLoading }: Props) => {
         <TxAdditionalInfo tx={ tx } isLoading={ isLoading } my="3px"/>
         <Box ml={ 3 } w="calc(100% - 40px)">
           <HStack flexWrap="wrap" my="3px">
+            <BlockHeight height={ tx.block } isLoading={ isLoading }/>
             <TxType types={ tx.tx_types } isLoading={ isLoading }/>
             <TxStatus status={ tx.status } errorText={ tx.status === 'error' ? tx.result : undefined } isLoading={ isLoading }/>
             <TxWatchListTags tx={ tx } isLoading={ isLoading }/>

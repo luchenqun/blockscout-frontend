@@ -43,7 +43,7 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
       // console.log('queryOptions = ', queryOptions, ', path = ', pathParams, ', query = ', queryParams, ', fetch = ', fetchParams, ', resource = ', resource);
       if (resource === 'blocks') {
         let curBlockNumber = 0;
-        let itemsCount = 50;
+        let itemsCount = 50; // query block count
         if (queryParams && Boolean(queryParams.block_number)) {
           curBlockNumber = queryParams.block_number as number;
           itemsCount = queryParams.items_count as number;
@@ -101,9 +101,9 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
 
         return Promise.resolve(data as ResourcePayload<R>);
       } else if (resource === 'txs_validated') {
-        const MaxItem = 400;
+        const MaxItem = 200; // If 200 transactions are found, the query will be terminated.
         let curBlockNumber = 0;
-        let itemsCount = 100;
+        let itemsCount = 300; // query block count
         let latestBlockNumber = BigInt(0);
         if (queryParams && Boolean(queryParams.block_number)) {
           curBlockNumber = queryParams.block_number as number;
@@ -122,7 +122,7 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
         };
 
         const items = [];
-        while (curBlockNumber >= 1 && itemsCount > 0 && items.length <= MaxItem) {
+        while (curBlockNumber >= 1 && itemsCount > 0 && items.length < MaxItem) {
           itemsCount -= 1;
           curBlockNumber -= 1;
           const blockParams = { blockNumber: BigInt(curBlockNumber), includeTransactions: true };
@@ -258,7 +258,7 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
           }
         }
       } else if (resource === 'homepage_stats') {
-        const latestBlock = await publicClient.getBlock().catch(() => GET_BLOCK);
+        const latestBlock = await publicClient.getBlock({ blockTag: 'latest' }).catch(() => GET_BLOCK);
         const firstBlock = await publicClient.getBlock({ blockNumber: BigInt(1), includeTransactions: false }).catch(() => GET_BLOCK);
         const totalBlockTime = latestBlock?.timestamp - firstBlock?.timestamp;
         const blockGap = latestBlock.number - firstBlock.number;
@@ -351,7 +351,7 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
         const MaxItem = 6;
         const latestBlockNumber = await publicClient.getBlockNumber({ cacheTime: 0 }).catch(() => BigInt(0));
 
-        let itemsCount = 100;
+        let itemsCount = 300;
         let curBlockNumber = Number(latestBlockNumber);
 
         let items = [];
