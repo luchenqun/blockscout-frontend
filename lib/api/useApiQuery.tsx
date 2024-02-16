@@ -8,6 +8,7 @@ import type { Transaction } from 'types/api/transaction';
 import dayjs from 'lib/date/dayjs';
 import hexToDecimal from 'lib/hexToDecimal';
 import { publicClient } from 'lib/web3/client';
+import { GET_BLOCK } from 'stubs/RPC';
 import { unknownAddress } from 'ui/shared/address/utils';
 
 import type { ResourceError, ResourceName, ResourcePayload } from './resources';
@@ -255,6 +256,51 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
             return Promise.resolve(data as ResourcePayload<R>);
           }
         }
+      } else if (resource === 'homepage_stats') {
+        const latestBlock = await publicClient.getBlock().catch(() => GET_BLOCK);
+        const firstBlock = await publicClient.getBlock({ blockNumber: BigInt(1), includeTransactions: false }).catch(() => GET_BLOCK);
+        const totalBlockTime = latestBlock?.timestamp - firstBlock?.timestamp;
+        const blockGap = latestBlock.number - firstBlock.number;
+        const averageBlockTime: number = blockGap > 0 ? Math.ceil(Number(totalBlockTime) / Number(blockGap) * 1000) : 0;
+
+        const data: unknown = {
+          average_block_time: averageBlockTime,
+          coin_image: 'https://assets.coingecko.com/coins/images/279/thumb/ethereum.png?1696501628',
+          coin_price: '2812.75',
+          coin_price_change_percentage: 1.8,
+          gas_price_updated_at: '2024-02-16T09:16:07.074312Z',
+          gas_prices: undefined && {
+            average: {
+              fiat_price: '1.78',
+              price: 30.16,
+              time: 12178.475,
+            },
+            fast: {
+              fiat_price: '11.31',
+              price: 191.54,
+              time: 12178.475,
+            },
+            slow: {
+              fiat_price: '1.73',
+              price: 29.31,
+              time: 12178.475,
+            },
+          },
+          gas_prices_update_in: 219372,
+          gas_used_today: '107909845451',
+          market_cap: '337995780402.04624100',
+          network_utilization_percentage: 51.19167076000339,
+          static_gas_price: null,
+          total_addresses: '320537603',
+          total_blocks: latestBlock.number.toString(),
+          total_gas_used: '0',
+          total_transactions: '2263617705',
+          transactions_today: '1153655',
+          rootstock_locked_btc: undefined,
+          tvl: null,
+          base_fee_per_gas: latestBlock.baseFeePerGas?.toString() || '0',
+        };
+        return Promise.resolve(data as ResourcePayload<R>);
       }
 
       const data = apiFetch(resource, { pathParams, queryParams, fetchParams }) as Promise<ResourcePayload<R>>;

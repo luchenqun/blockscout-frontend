@@ -54,7 +54,7 @@ export const GET_TRANSACTION_RECEIPT: TransactionReceipt = {
 export const GET_TRANSACTION_CONFIRMATIONS = BigInt(420);
 
 export const GET_BLOCK: GetBlockReturnType<Chain, false, 'latest'> = {
-  baseFeePerGas: BigInt(11),
+  baseFeePerGas: BigInt(0),
   difficulty: BigInt(111),
   extraData: '0xd8830',
   gasLimit: BigInt(800000),
@@ -64,7 +64,7 @@ export const GET_BLOCK: GetBlockReturnType<Chain, false, 'latest'> = {
   miner: ADDRESS_HASH,
   mixHash: BLOCK_HASH,
   nonce: '0x0000000000000000',
-  number: BigInt(10361367),
+  number: BigInt(0),
   parentHash: BLOCK_HASH,
   receiptsRoot: BLOCK_HASH,
   sha3Uncles: BLOCK_HASH,

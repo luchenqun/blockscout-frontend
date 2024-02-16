@@ -33,6 +33,7 @@ export const HOMEPAGE_STATS: HomeStats = {
   total_transactions: '193823272',
   transactions_today: '0',
   tvl: '1767425.102766552',
+  base_fee_per_gas: '0',
 };
 
 export const STATS_CHARTS_SECTION: StatsChartsSection = {

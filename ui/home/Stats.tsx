@@ -6,18 +6,16 @@ import { route } from 'nextjs-routes';
 
 import config from 'configs/app';
 import useApiQuery from 'lib/api/useApiQuery';
-import { WEI } from 'lib/consts';
+import { WEI, WEI_IN_GWEI } from 'lib/consts';
 import { currencyUnits } from 'lib/units';
 import { HOMEPAGE_STATS } from 'stubs/stats';
-import GasInfoTooltipContent from 'ui/shared/GasInfoTooltipContent/GasInfoTooltipContent';
 
 import StatsItem from './StatsItem';
 
-const hasGasTracker = config.UI.homepage.showGasTracker;
 const hasAvgBlockTime = config.UI.homepage.showAvgBlockTime;
 
 const Stats = () => {
-  const { data, isPlaceholderData, isError, dataUpdatedAt } = useApiQuery('homepage_stats', {
+  const { data, isPlaceholderData, isError } = useApiQuery('homepage_stats', {
     fetchParams: {
       headers: {
         'updated-gas-oracle': 'true',
@@ -29,14 +27,7 @@ const Stats = () => {
     },
   });
 
-  const zkEvmLatestBatchQuery = useApiQuery('homepage_zkevm_latest_batch', {
-    queryOptions: {
-      placeholderData: 12345,
-      enabled: config.features.zkEvmRollup.isEnabled,
-    },
-  });
-
-  if (isError || zkEvmLatestBatchQuery.isError) {
+  if (isError) {
     return null;
   }
 
@@ -44,47 +35,21 @@ const Stats = () => {
 
   const lastItemTouchStyle = { gridColumn: { base: 'span 2', lg: 'unset' } };
 
-  let itemsCount = 5;
-  !hasGasTracker && itemsCount--;
+  let itemsCount = 3;
   !hasAvgBlockTime && itemsCount--;
 
   if (data) {
-    !data.gas_prices && itemsCount--;
-    data.rootstock_locked_btc && itemsCount++;
     const isOdd = Boolean(itemsCount % 2);
-    const gasLabel = hasGasTracker && data.gas_prices ? <GasInfoTooltipContent data={ data } dataUpdatedAt={ dataUpdatedAt }/> : null;
-
-    const gasPriceText = (() => {
-      if (data.gas_prices?.average?.fiat_price) {
-        return `$${ data.gas_prices.average.fiat_price }`;
-      }
-
-      if (data.gas_prices?.average?.price) {
-        return `${ data.gas_prices.average.price.toLocaleString() } ${ currencyUnits.gwei }`;
-      }
-
-      return 'N/A';
-    })();
 
     content = (
       <>
-        { config.features.zkEvmRollup.isEnabled ? (
-          <StatsItem
-            icon="txn_batches"
-            title="Latest batch"
-            value={ (zkEvmLatestBatchQuery.data || 0).toLocaleString() }
-            url={ route({ pathname: '/batches' }) }
-            isLoading={ zkEvmLatestBatchQuery.isPlaceholderData }
-          />
-        ) : (
-          <StatsItem
-            icon="block"
-            title="Total blocks"
-            value={ Number(data.total_blocks).toLocaleString() }
-            url={ route({ pathname: '/blocks' }) }
-            isLoading={ isPlaceholderData }
-          />
-        ) }
+        <StatsItem
+          icon="block"
+          title="Total blocks"
+          value={ Number(data.total_blocks).toLocaleString() }
+          url={ route({ pathname: '/blocks' }) }
+          isLoading={ isPlaceholderData }
+        />
         { hasAvgBlockTime && (
           <StatsItem
             icon="clock-light"
@@ -93,7 +58,7 @@ const Stats = () => {
             isLoading={ isPlaceholderData }
           />
         ) }
-        <StatsItem
+        { /* <StatsItem
           icon="transactions"
           title="Total transactions"
           value={ Number(data.total_transactions).toLocaleString() }
@@ -106,14 +71,13 @@ const Stats = () => {
           value={ Number(data.total_addresses).toLocaleString() }
           _last={ isOdd ? lastItemTouchStyle : undefined }
           isLoading={ isPlaceholderData }
-        />
-        { hasGasTracker && data.gas_prices && (
+        /> */ }
+        { data.base_fee_per_gas && (
           <StatsItem
             icon="gas"
-            title="Gas tracker"
-            value={ gasPriceText }
+            title="Base fee"
+            value={ BigNumber(data.base_fee_per_gas).dividedBy(WEI_IN_GWEI).toFixed() + ' ' + currencyUnits.gwei }
             _last={ isOdd ? lastItemTouchStyle : undefined }
-            tooltipLabel={ gasLabel }
             isLoading={ isPlaceholderData }
           />
         ) }

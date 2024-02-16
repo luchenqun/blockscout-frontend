@@ -33,6 +33,7 @@ export const base: HomeStats = {
   total_transactions: '82258122',
   transactions_today: '26815',
   tvl: '1767425.102766552',
+  base_fee_per_gas: '0',
 };
 
 export const withBtcLocked: HomeStats = {
