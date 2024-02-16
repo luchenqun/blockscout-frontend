@@ -30,6 +30,7 @@ const LatestBlocks = () => {
   const { data, isPlaceholderData, isError, refetch } = useApiQuery('homepage_blocks', {
     queryOptions: {
       placeholderData: Array(blocksMaxCount).fill(BLOCK),
+      refetchInterval: 3000,
     },
   });
 

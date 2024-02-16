@@ -24,6 +24,7 @@ const Stats = () => {
     queryOptions: {
       refetchOnMount: false,
       placeholderData: HOMEPAGE_STATS,
+      refetchInterval: 3000,
     },
   });
 

@@ -20,6 +20,7 @@ const LatestTransactions = () => {
   const { data, isPlaceholderData, isError, refetch } = useApiQuery('homepage_txs', {
     queryOptions: {
       placeholderData: Array(txsCount).fill(TX),
+      refetchInterval: 60000,
     },
   });
 
