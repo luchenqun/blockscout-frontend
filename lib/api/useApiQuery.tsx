@@ -62,8 +62,6 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
 
         const promises = [];
         while (curBlockNumber >= 1 && itemsCount > 0) {
-          itemsCount -= 1;
-          curBlockNumber -= 1;
           const blockParams = { blockNumber: BigInt(curBlockNumber) };
           const promise = publicClient.getBlock(blockParams).then((block) => {
             return {
@@ -94,6 +92,9 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
             };
           });
           promises.push(promise);
+
+          itemsCount -= 1;
+          curBlockNumber -= 1;
         }
 
         const items = await Promise.all(promises);
@@ -123,8 +124,6 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
 
         const items = [];
         while (curBlockNumber >= 1 && itemsCount > 0 && items.length < MaxItem) {
-          itemsCount -= 1;
-          curBlockNumber -= 1;
           const blockParams = { blockNumber: BigInt(curBlockNumber), includeTransactions: true };
           const block = await publicClient.getBlock(blockParams);
           const txs = block.transactions
@@ -176,6 +175,9 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
             .filter(Boolean);
 
           items.push(...txs);
+
+          itemsCount -= 1;
+          curBlockNumber -= 1;
         }
 
         const promises = [];
@@ -310,8 +312,6 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
         if (curBlockNumber) {
           const promises = [];
           while (curBlockNumber >= 1 && itemsCount > 0) {
-            itemsCount -= 1;
-            curBlockNumber = curBlockNumber - BigInt(1);
             const blockParams = { blockNumber: curBlockNumber };
             const promise = publicClient.getBlock(blockParams).then((block) => {
               return {
@@ -342,6 +342,9 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
               } as Block;
             });
             promises.push(promise);
+
+            itemsCount -= 1;
+            curBlockNumber = curBlockNumber - BigInt(1);
           }
 
           data = await Promise.all(promises);
@@ -356,8 +359,6 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
 
         let items = [];
         while (curBlockNumber >= 1 && itemsCount > 0 && items.length < MaxItem) {
-          itemsCount -= 1;
-          curBlockNumber -= 1;
           const blockParams = { blockNumber: BigInt(curBlockNumber), includeTransactions: true };
           const block = await publicClient.getBlock(blockParams);
           const txs = block.transactions
@@ -409,6 +410,9 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
             .filter(Boolean);
 
           items.push(...txs);
+
+          itemsCount -= 1;
+          curBlockNumber -= 1;
         }
         items = items.slice(0, MaxItem);
 
