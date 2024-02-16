@@ -53,8 +53,8 @@ export default function useNavItems(): ReturnType {
       {
         text: 'Eth RPC API',
         icon: 'RPC',
-        nextRoute: { pathname: '/verified-contracts' as const },
-        isActive: pathname === '/verified-contracts',
+        nextRoute: { pathname: '/graphiql' as const },
+        isActive: pathname === '/graphiql',
       },
       {
         text: 'Tools',
