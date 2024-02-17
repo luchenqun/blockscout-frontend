@@ -42,6 +42,8 @@ export const ADDRESS_INFO: Address = {
   watchlist_names: [],
   watchlist_address_id: null,
   ens_domain_name: null,
+  nonce: null,
+  code: null,
 };
 
 export const ADDRESS_COUNTERS: AddressCounters = {

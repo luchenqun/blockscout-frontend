@@ -1,17 +1,20 @@
 import { useRouter } from 'next/router';
 import React from 'react';
-import { useAccount, useWalletClient, useNetwork, useSwitchNetwork } from 'wagmi';
+import { createWalletClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { mainnet } from 'viem/chains';
+// import { useAccount, useWalletClient, useNetwork, useSwitchNetwork } from 'wagmi';
 
 import type { SmartContractWriteMethod } from 'types/api/contract';
 
-import config from 'configs/app';
+// import config from 'configs/app';
 import useApiQuery from 'lib/api/useApiQuery';
 import getQueryParamString from 'lib/router/getQueryParamString';
 import ContractMethodsAccordion from 'ui/address/contract/ContractMethodsAccordion';
 import ContentLoader from 'ui/shared/ContentLoader';
 import DataFetchAlert from 'ui/shared/DataFetchAlert';
 
-import ContractConnectWallet from './ContractConnectWallet';
+// import ContractConnectWallet from './ContractConnectWallet';
 import ContractCustomAbiAlert from './ContractCustomAbiAlert';
 import ContractImplementationAddress from './ContractImplementationAddress';
 import ContractMethodCallable from './ContractMethodCallable';
@@ -20,10 +23,21 @@ import useContractAbi from './useContractAbi';
 import { getNativeCoinValue, prepareAbi } from './utils';
 
 const ContractWrite = () => {
-  const { data: walletClient } = useWalletClient();
-  const { isConnected } = useAccount();
-  const { chain } = useNetwork();
-  const { switchNetworkAsync } = useSwitchNetwork();
+  // const { data: walletClient } = useWalletClient();
+  // const { isConnected } = useAccount();
+
+  const isConnected = true;
+  const account = privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80');
+
+  const client = createWalletClient({
+    account,
+    chain: mainnet,
+    transport: http(),
+  });
+
+  // const { chain } = useNetwork();
+  // const chain = mainnet;
+  // const { switchNetworkAsync } = useSwitchNetwork();
 
   const router = useRouter();
 
@@ -49,9 +63,9 @@ const ContractWrite = () => {
       throw new Error('Wallet is not connected');
     }
 
-    if (chain?.id && String(chain.id) !== config.chain.id) {
-      await switchNetworkAsync?.(Number(config.chain.id));
-    }
+    // if (chain?.id && String(chain.id) !== config.chain.id) {
+    //   await switchNetworkAsync?.(Number(config.chain.id));
+    // }
 
     if (!contractAbi) {
       throw new Error('Something went wrong. Try again later.');
@@ -59,7 +73,7 @@ const ContractWrite = () => {
 
     if (item.type === 'receive' || item.type === 'fallback') {
       const value = getNativeCoinValue(args[0]);
-      const hash = await walletClient?.sendTransaction({
+      const hash = await client?.sendTransaction({
         to: addressHash as `0x${ string }` | undefined,
         value,
       });
@@ -75,7 +89,7 @@ const ContractWrite = () => {
     }
 
     const abi = prepareAbi(contractAbi, item);
-    const hash = await walletClient?.writeContract({
+    const hash = await client?.writeContract({
       args: _args,
       abi,
       functionName: methodName,
@@ -84,7 +98,7 @@ const ContractWrite = () => {
     });
 
     return { hash };
-  }, [ isConnected, chain, contractAbi, walletClient, addressHash, switchNetworkAsync ]);
+  }, [ isConnected, contractAbi, client, addressHash ]);
 
   const renderItemContent = React.useCallback((item: SmartContractWriteMethod, index: number, id: number) => {
     return (
@@ -113,7 +127,7 @@ const ContractWrite = () => {
   return (
     <>
       { isCustomAbi && <ContractCustomAbiAlert/> }
-      <ContractConnectWallet/>
+      { /* <ContractConnectWallet/> */ }
       { isProxy && <ContractImplementationAddress hash={ addressHash }/> }
       <ContractMethodsAccordion data={ data } addressHash={ addressHash } renderItemContent={ renderItemContent } tab={ tab }/>
     </>

@@ -34,6 +34,8 @@ export interface Address extends UserTags {
   name: string | null;
   token: TokenInfo | null;
   watchlist_address_id: number | null;
+  nonce: number | null;
+  code: string | null;
 }
 
 export interface AddressCounters {

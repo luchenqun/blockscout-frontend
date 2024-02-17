@@ -130,20 +130,22 @@ const AddressDetails = ({ addressQuery, scrollRef }: Props) => {
       ) }
       <DetailsInfoItem
         title="Transactions"
-        hint="Number of transactions related to this address"
-        isLoading={ addressQuery.isPlaceholderData || countersQuery.isPlaceholderData }
+        hint="Number of Transactions an Account has broadcast / sent"
+        isLoading={ addressQuery.isPlaceholderData }
       >
-        { addressQuery.data ? (
-          <AddressCounterItem
-            prop="transactions_count"
-            query={ countersQuery }
-            address={ data.hash }
-            onClick={ handleCounterItemClick }
-            isAddressQueryLoading={ addressQuery.isPlaceholderData }
-          />
-        ) :
-          0 }
+        { addressQuery.data?.nonce }
       </DetailsInfoItem>
+      {
+        addressQuery.data?.code && (
+          <DetailsInfoItem
+            title="Bytecode"
+            hint="The bytecode at an address"
+            isLoading={ addressQuery.isPlaceholderData }
+          >
+            { addressQuery.data.code.substring(0, 16) + '...' + addressQuery.data.code.slice(-16) }
+          </DetailsInfoItem>
+        )
+      }
       { data.has_token_transfers && (
         <DetailsInfoItem
           title="Transfers"
@@ -162,22 +164,6 @@ const AddressDetails = ({ addressQuery, scrollRef }: Props) => {
             0 }
         </DetailsInfoItem>
       ) }
-      <DetailsInfoItem
-        title="Gas used"
-        hint="Gas used by the address"
-        isLoading={ addressQuery.isPlaceholderData || countersQuery.isPlaceholderData }
-      >
-        { addressQuery.data ? (
-          <AddressCounterItem
-            prop="gas_usage_count"
-            query={ countersQuery }
-            address={ data.hash }
-            onClick={ handleCounterItemClick }
-            isAddressQueryLoading={ addressQuery.isPlaceholderData }
-          />
-        ) :
-          0 }
-      </DetailsInfoItem>
       { data.has_validated_blocks && (
         <DetailsInfoItem
           title="Blocks validated"

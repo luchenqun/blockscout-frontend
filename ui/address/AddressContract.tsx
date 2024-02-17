@@ -16,7 +16,7 @@ const TAB_LIST_PROPS = {
 
 const AddressContract = ({ tabs }: Props) => {
   const fallback = React.useCallback(() => {
-    const noProviderTabs = tabs.filter(({ id }) => id === 'contact_code' || id.startsWith('read_'));
+    const noProviderTabs = tabs.filter(({ id }) => id === 'contact_code' || id.startsWith('read_') || id.startsWith('write_'));
     return (
       <RoutedTabs tabs={ noProviderTabs } variant="outline" colorScheme="gray" size="sm" tabListProps={ TAB_LIST_PROPS }/>
     );
