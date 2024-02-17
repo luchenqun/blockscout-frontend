@@ -222,6 +222,20 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
               query = '0x' + query;
             }
 
+            if (query.length === 42) {
+              const data: unknown = [
+                {
+                  address: query,
+                  ens_info: null,
+                  is_smart_contract_verified: false,
+                  name: null,
+                  type: 'address',
+                  url: `/address/${ query }`,
+                },
+              ];
+              return Promise.resolve(data as ResourcePayload<R>);
+            }
+
             if (query.length === 66) {
               // search tx receipt
               const receipt = await publicClient.getTransactionReceipt({ hash: query as `0x${ string }` }).catch(() => null);
@@ -258,6 +272,8 @@ export default function useApiQuery<R extends ResourceName, E = unknown>(
             } ];
             return Promise.resolve(data as ResourcePayload<R>);
           }
+
+          return Promise.resolve([] as unknown as ResourcePayload<R>);
         }
       } else if (resource === 'homepage_stats') {
         const latestBlock = await publicClient.getBlock({ blockTag: 'latest' }).catch(() => GET_BLOCK);
