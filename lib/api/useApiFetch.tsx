@@ -12,7 +12,9 @@ import { getResourceKey } from 'lib/api/useApiQuery';
 import * as cookies from 'lib/cookies';
 import type { Params as FetchParams } from 'lib/hooks/useFetch';
 import useFetch from 'lib/hooks/useFetch';
+import { publicClient } from 'lib/web3/client';
 
+import { abi } from './abi';
 import buildUrl from './buildUrl';
 import { RESOURCES } from './resources';
 import type { ApiResource, ResourceName, ResourcePathParams } from './resources';
@@ -43,6 +45,31 @@ export default function useApiFetch() {
       'x-csrf-token': withBody && csrfToken ? csrfToken : undefined,
       ...fetchParams?.headers,
     }, Boolean) as HeadersInit;
+    // console.log('path = ', pathParams, ', query = ', queryParams, ', fetch = ', fetchParams, ', resource = ', resourceName);
+    if (resourceName === 'contract_method_query') {
+      publicClient.readContract({
+        address: '0x546bc6E008689577C69C42b9C1f6b4C923f59B5d',
+        abi,
+        args: [ '0x00000Be6819f41400225702D32d3dd23663Dd690' ],
+        functionName: 'balanceOf',
+      }).then(data => console.log('readContract', data));
+
+      const data: unknown = {
+        is_error: false,
+        result: {
+          names: [
+            null,
+          ],
+          output: [
+            {
+              type: 'uint256',
+              value: 1702786084492,
+            },
+          ],
+        },
+      };
+      return Promise.resolve(data);
+    }
 
     return fetch<SuccessType, ErrorType>(
       url,
