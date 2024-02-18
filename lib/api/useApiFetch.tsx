@@ -3,6 +3,7 @@ import _omit from 'lodash/omit';
 import _pickBy from 'lodash/pickBy';
 import React from 'react';
 
+import type { SmartContractQueryMethodRead } from 'types/api/contract';
 import type { CsrfData } from 'types/client/account';
 
 import config from 'configs/app';
@@ -47,28 +48,40 @@ export default function useApiFetch() {
     }, Boolean) as HeadersInit;
     // console.log('path = ', pathParams, ', query = ', queryParams, ', fetch = ', fetchParams, ', resource = ', resourceName);
     if (resourceName === 'contract_method_query') {
-      publicClient.readContract({
-        address: '0x546bc6E008689577C69C42b9C1f6b4C923f59B5d',
-        abi,
-        args: [ '0x00000Be6819f41400225702D32d3dd23663Dd690' ],
-        functionName: 'balanceOf',
-      }).then(data => console.log('readContract', data));
+      console.log('path = ', pathParams, ', query = ', queryParams, ', fetch = ', fetchParams, ', resource = ', resourceName);
 
-      const data: unknown = {
-        is_error: false,
-        result: {
-          names: [
-            null,
-          ],
-          output: [
-            {
-              type: 'uint256',
-              value: 1702786084492,
-            },
-          ],
-        },
+      const contractFetchParams = fetchParams as Pick<FetchParams, 'body'> & {
+        body: {
+          args?: Array<unknown> | undefined;
+          method: string;
+          outputs: Array<{type: string; value: unknown}>;
+        };
       };
-      return Promise.resolve(data);
+      return publicClient.readContract({
+        address: (pathParams as unknown as { hash: string }).hash as `0x${ string }`,
+        abi,
+        args: contractFetchParams?.body?.args,
+        functionName: contractFetchParams?.body.method,
+      }).then(data => {
+        let datas: Array<unknown> = [ data ];
+        if (Array.isArray(data)) {
+          datas = data as Array<unknown>;
+        }
+        const outputs = contractFetchParams?.body.outputs;
+        if (Array.isArray(outputs)) {
+          for (let i = 0; i < datas.length; i++) {
+            outputs[i].value = datas[i];
+          }
+        }
+        return {
+          is_error: false,
+          result: {
+            names: [ null ],
+            output: outputs,
+          },
+        };
+      }) as Promise<SmartContractQueryMethodRead>;
+
     }
 
     return fetch<SuccessType, ErrorType>(

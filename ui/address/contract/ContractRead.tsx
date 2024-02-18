@@ -51,6 +51,8 @@ const ContractRead = () => {
         body: {
           args,
           method_id: item.method_id,
+          method: item.name,
+          outputs: item.outputs,
           contract_type: isProxy ? 'proxy' : 'regular',
           from: account?.address,
         },

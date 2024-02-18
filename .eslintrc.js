@@ -153,7 +153,7 @@ module.exports = {
       beforeBlockComment: true,
       allowBlockStart: true,
     } ],
-    'max-len': [ 'error', 160, 4 ],
+    'max-len': [ 'error', 200, 4 ],
     'no-console': 'off',
     'no-empty': [ 'error', { allowEmptyCatch: true } ],
     'no-implicit-coercion': [ 'error', {

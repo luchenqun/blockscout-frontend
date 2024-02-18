@@ -40,6 +40,10 @@ const ERROR_SCREEN_STYLES: ChakraProps = {
   p: { base: 4, lg: 0 },
 };
 
+(BigInt.prototype as unknown as {toJSON: unknown}).toJSON = function() {
+  return this.toString();
+};
+
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   useLoadFeatures();
