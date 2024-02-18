@@ -48,8 +48,6 @@ export default function useApiFetch() {
     }, Boolean) as HeadersInit;
     // console.log('path = ', pathParams, ', query = ', queryParams, ', fetch = ', fetchParams, ', resource = ', resourceName);
     if (resourceName === 'contract_method_query') {
-      console.log('path = ', pathParams, ', query = ', queryParams, ', fetch = ', fetchParams, ', resource = ', resourceName);
-
       const contractFetchParams = fetchParams as Pick<FetchParams, 'body'> & {
         body: {
           args?: Array<unknown> | undefined;

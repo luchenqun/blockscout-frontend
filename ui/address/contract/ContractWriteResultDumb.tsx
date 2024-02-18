@@ -13,6 +13,7 @@ interface Props {
   txInfo: {
     status: 'loading' | 'success' | 'error' | 'idle';
     error: Error | null;
+    data?: unknown;
   };
 }
 
@@ -51,6 +52,8 @@ const ContractWriteResultDumb = ({ result, onSettle, txInfo }: Props) => {
           <>
             <span>Transaction has been confirmed. </span>
             { txLink }
+            <div></div>
+            { JSON.stringify(txInfo?.data, undefined, 2) }
           </>
         );
       }

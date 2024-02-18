@@ -2,7 +2,6 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import { createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { mainnet } from 'viem/chains';
 // import { useAccount, useWalletClient, useNetwork, useSwitchNetwork } from 'wagmi';
 
 import type { SmartContractWriteMethod } from 'types/api/contract';
@@ -10,6 +9,7 @@ import type { SmartContractWriteMethod } from 'types/api/contract';
 // import config from 'configs/app';
 import useApiQuery from 'lib/api/useApiQuery';
 import getQueryParamString from 'lib/router/getQueryParamString';
+import chain from 'lib/web3/currentChain';
 import ContractMethodsAccordion from 'ui/address/contract/ContractMethodsAccordion';
 import ContentLoader from 'ui/shared/ContentLoader';
 import DataFetchAlert from 'ui/shared/DataFetchAlert';
@@ -27,11 +27,11 @@ const ContractWrite = () => {
   // const { isConnected } = useAccount();
 
   const isConnected = true;
-  const account = privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80');
+  const account = privateKeyToAccount('0xf78a036930ce63791ea6ea20072986d8c3f16a6811f6a2583b0787c45086f769');
 
   const client = createWalletClient({
     account,
-    chain: mainnet,
+    chain,
     transport: http(),
   });
 
@@ -96,7 +96,6 @@ const ContractWrite = () => {
       address: addressHash as `0x${ string }`,
       value: value as undefined,
     });
-
     return { hash };
   }, [ isConnected, contractAbi, client, addressHash ]);
 
