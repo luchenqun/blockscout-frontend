@@ -8,14 +8,12 @@ import React from 'react';
 
 import type { NextPageWithLayout } from 'nextjs/types';
 
-import config from 'configs/app';
 import useQueryClientConfig from 'lib/api/useQueryClientConfig';
 import { AppContextProvider } from 'lib/contexts/app';
 import { ChakraProvider } from 'lib/contexts/chakra';
 import { ScrollDirectionProvider } from 'lib/contexts/scrollDirection';
 import { growthBook } from 'lib/growthbook/init';
 import useLoadFeatures from 'lib/growthbook/useLoadFeatures';
-import { SocketProvider } from 'lib/socket/context';
 import theme from 'theme';
 import AppErrorBoundary from 'ui/shared/AppError/AppErrorBoundary';
 import GoogleAnalytics from 'ui/shared/GoogleAnalytics';
@@ -67,9 +65,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
             <QueryClientProvider client={ queryClient }>
               <GrowthBookProvider growthbook={ growthBook }>
                 <ScrollDirectionProvider>
-                  <SocketProvider url={ `${ config.api.socket }${ config.api.basePath }/socket/v2` }>
-                    { getLayout(<Component { ...pageProps }/>) }
-                  </SocketProvider>
+                  { getLayout(<Component { ...pageProps }/>) }
                 </ScrollDirectionProvider>
               </GrowthBookProvider>
               <ReactQueryDevtools buttonPosition="bottom-left" position="left"/>
