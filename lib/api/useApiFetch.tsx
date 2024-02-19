@@ -52,7 +52,7 @@ export default function useApiFetch() {
         body: {
           args?: Array<unknown> | undefined;
           method: string;
-          outputs: Array<{type: string; value: unknown}>;
+          outputs: Array<{type: string; value: unknown; name: string}>;
         };
       };
       return publicClient.readContract({
@@ -62,6 +62,7 @@ export default function useApiFetch() {
         functionName: contractFetchParams?.body.method,
       }).then(data => {
         let datas: Array<unknown> = [ data ];
+        const names: Array<string> = [];
         if (Array.isArray(data)) {
           datas = data as Array<unknown>;
         }
@@ -69,12 +70,13 @@ export default function useApiFetch() {
         if (Array.isArray(outputs)) {
           for (let i = 0; i < datas.length; i++) {
             outputs[i].value = datas[i];
+            names[i] = outputs[i].name;
           }
         }
         return {
           is_error: false,
           result: {
-            names: [ null ],
+            names,
             output: outputs,
           },
         };
