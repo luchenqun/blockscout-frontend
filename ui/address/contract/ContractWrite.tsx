@@ -1,7 +1,5 @@
 import { useRouter } from 'next/router';
 import React from 'react';
-import { createWalletClient, http } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
 // import { useAccount, useWalletClient, useNetwork, useSwitchNetwork } from 'wagmi';
 
 import type { SmartContractWriteMethod } from 'types/api/contract';
@@ -9,7 +7,7 @@ import type { SmartContractWriteMethod } from 'types/api/contract';
 // import config from 'configs/app';
 import useApiQuery from 'lib/api/useApiQuery';
 import getQueryParamString from 'lib/router/getQueryParamString';
-import chain from 'lib/web3/currentChain';
+import { walletClient } from 'lib/web3/client';
 import ContractMethodsAccordion from 'ui/address/contract/ContractMethodsAccordion';
 import ContentLoader from 'ui/shared/ContentLoader';
 import DataFetchAlert from 'ui/shared/DataFetchAlert';
@@ -27,13 +25,6 @@ const ContractWrite = () => {
   // const { isConnected } = useAccount();
 
   const isConnected = true;
-  const account = privateKeyToAccount('0xf78a036930ce63791ea6ea20072986d8c3f16a6811f6a2583b0787c45086f769');
-
-  const client = createWalletClient({
-    account,
-    chain,
-    transport: http(),
-  });
 
   // const { chain } = useNetwork();
   // const chain = mainnet;
@@ -73,7 +64,7 @@ const ContractWrite = () => {
 
     if (item.type === 'receive' || item.type === 'fallback') {
       const value = getNativeCoinValue(args[0]);
-      const hash = await client?.sendTransaction({
+      const hash = await walletClient?.sendTransaction({
         to: addressHash as `0x${ string }` | undefined,
         value,
       });
@@ -89,7 +80,7 @@ const ContractWrite = () => {
     }
 
     const abi = prepareAbi(contractAbi, item);
-    const hash = await client?.writeContract({
+    const hash = await walletClient?.writeContract({
       args: _args,
       abi,
       functionName: methodName,
@@ -97,7 +88,7 @@ const ContractWrite = () => {
       value: value as undefined,
     });
     return { hash };
-  }, [ isConnected, contractAbi, client, addressHash ]);
+  }, [ isConnected, contractAbi, addressHash ]);
 
   const renderItemContent = React.useCallback((item: SmartContractWriteMethod, index: number, id: number) => {
     return (
