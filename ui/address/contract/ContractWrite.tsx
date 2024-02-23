@@ -1,3 +1,4 @@
+import { useLocalStorage } from '@uidotdev/usehooks';
 import { useRouter } from 'next/router';
 import React from 'react';
 // import { useAccount, useWalletClient, useNetwork, useSwitchNetwork } from 'wagmi';
@@ -6,8 +7,9 @@ import type { SmartContractWriteMethod } from 'types/api/contract';
 
 // import config from 'configs/app';
 import useApiQuery from 'lib/api/useApiQuery';
+import useWalletClient from 'lib/hooks/useWalletClient';
 import getQueryParamString from 'lib/router/getQueryParamString';
-import { walletClient } from 'lib/web3/client';
+// import { walletClient } from 'lib/web3/client';
 import ContractMethodsAccordion from 'ui/address/contract/ContractMethodsAccordion';
 import ContentLoader from 'ui/shared/ContentLoader';
 import DataFetchAlert from 'ui/shared/DataFetchAlert';
@@ -21,6 +23,8 @@ import useContractAbi from './useContractAbi';
 import { getNativeCoinValue, prepareAbi } from './utils';
 
 const ContractWrite = () => {
+  const [ walletName ] = useLocalStorage('wallet-name', 'pk1');
+  const walletClient = useWalletClient(walletName);
   // const { data: walletClient } = useWalletClient();
   // const { isConnected } = useAccount();
 
@@ -88,7 +92,7 @@ const ContractWrite = () => {
       value: value as undefined,
     });
     return { hash };
-  }, [ isConnected, contractAbi, addressHash ]);
+  }, [ isConnected, contractAbi, addressHash, walletClient ]);
 
   const renderItemContent = React.useCallback((item: SmartContractWriteMethod, index: number, id: number) => {
     return (
