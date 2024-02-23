@@ -1,10 +1,15 @@
+import { LocalStoragePreset } from 'lowdb/browser';
+import type { LowSync } from 'lowdb/lib/core/Low';
+
 export type Wallet = {
   name: string;
   privateKey: `0x${ string }`;
   address: `0x${ string }`;
   text: string;
   isPrivateKey: boolean;
+  latest: boolean;
 }
+
 export const Keys = {
   Version: 'version',
   Providers: 'providers',
@@ -34,6 +39,7 @@ export const DefaultWallet: Wallet = {
   address: '0x00000Be6819f41400225702D32d3dd23663Dd690',
   text: 'admin-0x00000Be6819f41400225702D32d3dd23663Dd690',
   isPrivateKey: true,
+  latest: true,
 };
 export const DefaultWallet2: Wallet = {
   name: 'pk1',
@@ -41,6 +47,28 @@ export const DefaultWallet2: Wallet = {
   address: '0x1111102Dd32160B064F2A512CDEf74bFdB6a9F96',
   text: 'pk1-0x1111102Dd32160B064F2A512CDEf74bFdB6a9F96',
   isPrivateKey: true,
+  latest: false,
 };
 
 export const defaultData: Data = { wallets: [ DefaultWallet, DefaultWallet2 ] };
+let lowdb: LowSync<Data>;
+if (typeof window !== 'undefined') {
+  lowdb = LocalStoragePreset<Data>('db', defaultData);
+}
+
+const storage = {
+  wallets: (): Array<Wallet> => {
+    const wallets = lowdb.data.wallets;
+    return wallets || [ DefaultWallet ];
+  },
+  wallet: (): Wallet => {
+    const wallets = storage.wallets();
+    const wallet = wallets.find(item => item.latest);
+    if (wallet) {
+      return wallet;
+    }
+    return DefaultWallet;
+  },
+};
+
+export default storage;

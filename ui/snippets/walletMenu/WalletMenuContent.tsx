@@ -1,6 +1,7 @@
 import { Box, Button, Text } from '@chakra-ui/react';
 import React from 'react';
 
+import { useWallets } from 'lib/hooks/useStorage';
 import * as mixpanel from 'lib/mixpanel/index';
 import getDefaultTransitionProps from 'theme/utils/getDefaultTransitionProps';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
@@ -14,6 +15,8 @@ const WalletMenuContent = ({ address, disconnect }: Props) => {
   const onAddressClick = React.useCallback(() => {
     mixpanel.logEvent(mixpanel.EventTypes.WALLET_ACTION, { Action: 'Address click' });
   }, []);
+
+  const wallets = useWallets();
 
   return (
     <Box>
@@ -34,6 +37,23 @@ const WalletMenuContent = ({ address, disconnect }: Props) => {
       >
         Your wallet is used to interact with apps and contracts in the explorer.
       </Text>
+      {
+        wallets.map(wallet => {
+          return (
+            <AddressEntity
+              address={{ hash: wallet.address }}
+              noTooltip
+              truncation="dynamic"
+              fontSize="sm"
+              fontWeight={ 700 }
+              color="text"
+              mb={ 6 }
+              onClick={ onAddressClick }
+              key={ wallet.name }
+            />
+          );
+        })
+      }
       <AddressEntity
         address={{ hash: address }}
         noTooltip
@@ -46,6 +66,9 @@ const WalletMenuContent = ({ address, disconnect }: Props) => {
       />
       <Button size="sm" width="full" variant="outline" onClick={ disconnect }>
         Disconnect
+      </Button>
+      <Button size="sm" width="full" variant="outline" onClick={ disconnect }>
+        Connect
       </Button>
     </Box>
   );

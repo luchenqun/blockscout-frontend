@@ -1,4 +1,3 @@
-import { useLocalStorage } from '@uidotdev/usehooks';
 import { useRouter } from 'next/router';
 import React from 'react';
 // import { useAccount, useWalletClient, useNetwork, useSwitchNetwork } from 'wagmi';
@@ -7,7 +6,7 @@ import type { SmartContractWriteMethod } from 'types/api/contract';
 
 // import config from 'configs/app';
 import useApiQuery from 'lib/api/useApiQuery';
-import useWalletClient from 'lib/hooks/useWalletClient';
+import { useWalletClient } from 'lib/hooks/useStorage';
 import getQueryParamString from 'lib/router/getQueryParamString';
 // import { walletClient } from 'lib/web3/client';
 import ContractMethodsAccordion from 'ui/address/contract/ContractMethodsAccordion';
@@ -23,8 +22,8 @@ import useContractAbi from './useContractAbi';
 import { getNativeCoinValue, prepareAbi } from './utils';
 
 const ContractWrite = () => {
-  const [ walletName ] = useLocalStorage('wallet-name', 'pk1');
-  const walletClient = useWalletClient(walletName);
+  const walletClient = useWalletClient();
+  // console.log('walletClient', walletClient.time);
   // const { data: walletClient } = useWalletClient();
   // const { isConnected } = useAccount();
 
@@ -120,6 +119,9 @@ const ContractWrite = () => {
 
   return (
     <>
+      <span onClick={ () => {
+        setUpdateTime(new Date().getTime());
+      } }>xxxxxxxxxxxx</span>
       { isCustomAbi && <ContractCustomAbiAlert/> }
       { /* <ContractConnectWallet/> */ }
       { isProxy && <ContractImplementationAddress hash={ addressHash }/> }
