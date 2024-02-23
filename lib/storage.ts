@@ -50,16 +50,22 @@ export const DefaultWallet2: Wallet = {
   latest: false,
 };
 
-export const defaultData: Data = { wallets: [ DefaultWallet, DefaultWallet2 ] };
+export const defaultData: Data = { wallets: [ ] };
 let lowdb: LowSync<Data>;
 if (typeof window !== 'undefined') {
   lowdb = LocalStoragePreset<Data>('db', defaultData);
 }
 
 const storage = {
+  init: () => {
+    const wallets = storage.wallets();
+    if (wallets.length === 0) {
+      lowdb?.update(({ wallets }) => wallets.push(...[ DefaultWallet, DefaultWallet2 ]));
+    }
+  },
   wallets: (): Array<Wallet> => {
-    const wallets = lowdb.data.wallets;
-    return wallets || [ DefaultWallet ];
+    const wallets = lowdb?.data.wallets;
+    return wallets || [ ];
   },
   wallet: (): Wallet => {
     const wallets = storage.wallets();
@@ -69,6 +75,15 @@ const storage = {
     }
     return DefaultWallet;
   },
+  selectWallet: (address: string) => {
+    lowdb?.update(({ wallets }) => {
+      for (const wallet of wallets) {
+        wallet.latest = wallet.address.toLowerCase() === address.toLowerCase();
+      }
+      return wallets;
+    });
+  },
+  DefaultWallet,
 };
 
 export default storage;

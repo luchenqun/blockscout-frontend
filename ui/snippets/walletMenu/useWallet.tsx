@@ -1,9 +1,10 @@
+import { useIsClient } from '@uidotdev/usehooks';
 import { useWeb3Modal, useWeb3ModalState } from '@web3modal/wagmi/react';
 import React from 'react';
 import { useAccount, useDisconnect } from 'wagmi';
 
+import { useWallet as useHookWallet } from 'lib/hooks/useStorage';
 import * as mixpanel from 'lib/mixpanel/index';
-
 interface Params {
   source: mixpanel.EventPayload<mixpanel.EventTypes.WALLET_CONNECT>['Source'];
 }
@@ -15,6 +16,9 @@ export default function useWallet({ source }: Params) {
   const [ isModalOpening, setIsModalOpening ] = React.useState(false);
   const [ isClientLoaded, setIsClientLoaded ] = React.useState(false);
   const isConnectionStarted = React.useRef(false);
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const wallet = useIsClient() ? useHookWallet() : { address: '0x00000Be6819f41400225702D32d3dd23663Dd690' };
 
   React.useEffect(() => {
     setIsClientLoaded(true);
@@ -44,7 +48,7 @@ export default function useWallet({ source }: Params) {
 
   return {
     isWalletConnected,
-    address: address || '0x00000Be6819f41400225702D32d3dd23663Dd690',
+    address: wallet.address || '0x00000Be6819f41400225702D32d3dd23663Dd690',
     connect: handleConnect,
     disconnect: handleDisconnect,
     isModalOpening,
