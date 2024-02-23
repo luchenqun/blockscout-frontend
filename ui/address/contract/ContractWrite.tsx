@@ -119,9 +119,6 @@ const ContractWrite = () => {
 
   return (
     <>
-      <span onClick={ () => {
-        setUpdateTime(new Date().getTime());
-      } }>xxxxxxxxxxxx</span>
       { isCustomAbi && <ContractCustomAbiAlert/> }
       { /* <ContractConnectWallet/> */ }
       { isProxy && <ContractImplementationAddress hash={ addressHash }/> }
